@@ -7,7 +7,6 @@ public class AppDbContext : IdentityDbContext<Company>
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
     }
-
     public DbSet<Customer> Customers { get; set; }
     public DbSet<WalletCard> WalletCards { get; set; }
     public DbSet<Store> Stores { get; set; }
