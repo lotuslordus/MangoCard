@@ -21,7 +21,44 @@ namespace MangoCard.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Company", b =>
+            modelBuilder.Entity("Customer", b =>
+                {
+                    b.Property<Guid>("CustomerId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("WalletCardWalletId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CustomerId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("WalletCardWalletId");
+
+                    b.ToTable("Customers");
+                });
+
+            modelBuilder.Entity("MangoCard.Models.Company", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -30,7 +67,6 @@ namespace MangoCard.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CompanyName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
@@ -50,7 +86,7 @@ namespace MangoCard.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<decimal>("MonthlyFee")
+                    b.Property<decimal?>("MonthlyFee")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("NormalizedEmail")
@@ -93,38 +129,40 @@ namespace MangoCard.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Customer", b =>
+            modelBuilder.Entity("MangoCard.Models.Store", b =>
                 {
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid>("StoreId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CompanyId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Email")
+                    b.Property<string>("ContactPerson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PLZ")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FirstName")
+                    b.Property<string>("StoreName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("WalletCardWalletId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("CustomerId");
+                    b.HasKey("StoreId");
 
                     b.HasIndex("CompanyId");
 
-                    b.HasIndex("WalletCardWalletId");
-
-                    b.ToTable("Customers");
+                    b.ToTable("Stores");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -207,10 +245,12 @@ namespace MangoCard.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -247,10 +287,12 @@ namespace MangoCard.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -258,31 +300,6 @@ namespace MangoCard.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Store", b =>
-                {
-                    b.Property<Guid>("StoreId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("CompanyId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StoreName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("StoreId");
-
-                    b.HasIndex("CompanyId");
-
-                    b.ToTable("Stores");
                 });
 
             modelBuilder.Entity("WalletCard", b =>
@@ -317,7 +334,7 @@ namespace MangoCard.Migrations
 
             modelBuilder.Entity("Customer", b =>
                 {
-                    b.HasOne("Company", "Company")
+                    b.HasOne("MangoCard.Models.Company", "Company")
                         .WithMany("Customers")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -326,6 +343,17 @@ namespace MangoCard.Migrations
                     b.HasOne("WalletCard", null)
                         .WithMany("Customers")
                         .HasForeignKey("WalletCardWalletId");
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("MangoCard.Models.Store", b =>
+                {
+                    b.HasOne("MangoCard.Models.Company", "Company")
+                        .WithMany("Stores")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Company");
                 });
@@ -341,7 +369,7 @@ namespace MangoCard.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Company", null)
+                    b.HasOne("MangoCard.Models.Company", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -350,7 +378,7 @@ namespace MangoCard.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Company", null)
+                    b.HasOne("MangoCard.Models.Company", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -365,7 +393,7 @@ namespace MangoCard.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Company", null)
+                    b.HasOne("MangoCard.Models.Company", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -374,27 +402,16 @@ namespace MangoCard.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Company", null)
+                    b.HasOne("MangoCard.Models.Company", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Store", b =>
-                {
-                    b.HasOne("Company", "Company")
-                        .WithMany("Stores")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-                });
-
             modelBuilder.Entity("WalletCard", b =>
                 {
-                    b.HasOne("Company", "Company")
+                    b.HasOne("MangoCard.Models.Company", "Company")
                         .WithMany("WalletCards")
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -403,7 +420,7 @@ namespace MangoCard.Migrations
                     b.Navigation("Company");
                 });
 
-            modelBuilder.Entity("Company", b =>
+            modelBuilder.Entity("MangoCard.Models.Company", b =>
                 {
                     b.Navigation("Customers");
 

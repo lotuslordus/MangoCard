@@ -1,5 +1,6 @@
 using MangoCard.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 
 namespace MangoCard.Controllers
@@ -16,12 +17,18 @@ namespace MangoCard.Controllers
         public IActionResult Index()
         {
             return View();
+        }        
+        
+        public IActionResult Dashboard()
+        {
+            return View();
         }
 
         public IActionResult Privacy()
         {
             return View();
         }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

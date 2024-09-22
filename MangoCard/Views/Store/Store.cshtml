@@ -1,0 +1,264 @@
+﻿@{
+    ViewData["Title"] = "Geschäfte";
+    Layout = "_DashboardLayout"; // Dein Layout
+}
+@model IEnumerable<MangoCard.Models.Store>
+
+<div class="container">
+    <div class="page-inner">
+        <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+            <div>
+                <h3 class="fw-bold mb-3">Geschäfte Übersicht</h3>
+            </div>
+            <div class="ms-md-auto py-2 py-md-0">
+                <a href="#" class="btn btn-primary btn-round" data-bs-toggle="modal" data-bs-target="#addShopModal">Neues Geschäft</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Geschäfte</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="basic-datatables" class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Name Geschäft</th>
+                                        <th>Adresse</th>
+                                        <th>PLZ</th>
+                                        <th>Stadt</th>
+                                        <th>Ansprechperson</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var store in Model)
+                                    {
+                                        <tr>
+                                            <td>@store.StoreName</td>
+                                            <td>@store.Address</td>
+                                            <td>@store.PLZ</td>
+                                            <td>@store.City</td>
+                                            <td>@(string.IsNullOrEmpty(store.ContactPerson) ? "k.A." : store.ContactPerson)</td>
+                                            <td>
+                                                <!-- QR-Code Button -->
+                                                <a href="#" class="btn btn-link text-primary" onclick="showQrCodeModal('@store.StoreId')" title="QR Code anzeigen">
+                                                    <i class="fas fa-qrcode"></i>
+                                                </a>
+                                                <!-- Mülleimer Button -->
+                                                <a href="#" class="btn btn-link text-danger" onclick="showDeleteModal('@store.StoreId')" title="Löschen">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- Modal für Neues Geschäft -->
+<div class="modal fade" id="addShopModal" tabindex="-1" role="dialog" aria-labelledby="addShopModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addShopModalLabel">Neues Geschäft hinzufügen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addShopForm">
+                    <div class="mb-3">
+                        <label for="shopName" class="form-label">Name vom Geschäft <a style="color: red;">*</a></label>
+                        <input type="text" class="form-control" id="shopName" placeholder="Name vom Geschäft" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shopAddress" class="form-label">Adresse <a style="color: red;">*</a></label>
+                        <input type="text" class="form-control" id="shopAddress" placeholder="Adresse" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shopPlz" class="form-label">PLZ <a style="color: red;">*</a></label>
+                        <input type="text" class="form-control" id="shopPlz" placeholder="PLZ" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shopCity" class="form-label">Stadt <a style="color: red;">*</a></label>
+                        <input type="text" class="form-control" id="shopCity" placeholder="Stadt" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shopContact" class="form-label">Ansprechperson</label>
+                        <input type="text" class="form-control" id="shopContact" placeholder="Ansprechperson" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-primary" id="saveShopButton">Speichern</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal für QR Code -->
+<div class="modal fade" id="qrCodeModal" tabindex="-1" role="dialog" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="qrCodeModalLabel">QR Code</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Container für QR Code, zentriert mit Flexbox -->
+                <div id="qrCodeContainer" style="display: flex; justify-content: center; align-items: center; height: 250px;"></div>
+                <p class="text-center" id="qrLink"></p> <!-- Zeigt den Endpunkt an -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-primary" id="saveQrCodeButton">Speichern</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal für Löschen-Bestätigung -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Store löschen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Willst du den Store wirklich löschen?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Löschen</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+    // Funktion zum Anzeigen des QR-Codes
+    function showQrCodeModal(storeId) {
+        var domain = window.location.origin; // Holt die aktuelle Domain
+        var customerRegisterUrl = domain + "/CustomerRegistration/" + storeId; // Erstellt die URL
+
+        // Generiere den QR-Code basierend auf der vollständigen URL
+        var qrCodeContainer = document.getElementById('qrCodeContainer');
+        qrCodeContainer.innerHTML = ""; // Leere den Container
+
+        var qrcode = new QRCode(qrCodeContainer, {
+            text: customerRegisterUrl, // Setzt die URL in den QR-Code
+            width: 200,
+            height: 200,
+        });
+
+        // Zeigt den Link unterhalb des QR-Codes an
+        document.getElementById('qrLink').textContent = customerRegisterUrl;
+        document.getElementById('qrLink').style.wordWrap = 'break-word'; // Damit der Link sauber umbricht
+
+        // Öffne das Modal
+        var qrCodeModal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
+        qrCodeModal.show();
+    }
+
+    // Funktion zum Speichern des QR-Codes
+    document.getElementById('saveQrCodeButton').addEventListener('click', function () {
+        var qrCanvas = document.querySelector('#qrCodeContainer canvas');
+        var qrImage = qrCanvas.toDataURL("image/png");
+
+        // Erstelle einen Link, um das Bild herunterzuladen
+        var link = document.createElement('a');
+        link.href = qrImage;
+        link.download = 'qr-code.png'; // Standardname für das gespeicherte Bild
+        link.click();
+    });
+
+    // Funktion zum Anzeigen des Lösch-Modals und Speichern der StoreId
+    let storeToDelete = null;
+
+    function showDeleteModal(storeId) {
+        storeToDelete = storeId;
+        var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+
+    // Funktion zum Löschen des Stores
+    document.getElementById('confirmDeleteButton').addEventListener('click', function () {
+        if (storeToDelete) {
+            $.ajax({
+                url: '/Store/Delete',  // URL für das Löschen (passend im Controller definieren)
+                type: 'POST',
+                data: { id: storeToDelete },  // Die StoreId wird hier gesendet
+                success: function (response) {
+                    if (response.success) {
+                        location.reload();  // Seite neu laden nach erfolgreichem Löschen
+                    } else {
+                        alert('Fehler beim Löschen des Stores.');
+                    }
+                },
+                error: function () {
+                    alert('Fehler beim Löschen des Stores.');
+                }
+            });
+        }
+    });
+</script>
+
+
+<!-- DataTables Initialisierung -->
+<script>
+    document.getElementById('saveShopButton').addEventListener('click', function () {
+        var shopName = document.getElementById('shopName').value;
+        var shopAddress = document.getElementById('shopAddress').value;
+        var shopPlz = document.getElementById('shopPlz').value;
+        var shopCity = document.getElementById('shopCity').value;
+        var shopContact = document.getElementById('shopContact').value;
+
+        // AJAX-Request, um die Daten an den Controller zu senden
+        $.ajax({
+            url: '/Store/CreateStore',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                StoreName: shopName,
+                Address: shopAddress,
+                PLZ: shopPlz,
+                City: shopCity,
+                ContactPerson: shopContact
+            }),
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    location.reload(); // Aktualisiere die Seite nach erfolgreichem Speichern
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+
+        // Schließe das Modal nach dem Speichern
+        var myModalEl = document.getElementById('addShopModal');
+        var modal = bootstrap.Modal.getInstance(myModalEl);
+        modal.hide();
+    });
+</script>
+

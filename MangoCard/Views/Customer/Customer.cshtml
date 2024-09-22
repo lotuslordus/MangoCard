@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "Kartennutzer";
+    Layout = "_DashboardLayout"; // Dein Layout
+}
+
+<div class="container">
+    <div class="page-inner">
+        <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+            <div>
+                <h3 class="fw-bold mb-3">Kartennutzer Übersicht</h3>
+            </div>
+@*             <div class="ms-md-auto py-2 py-md-0">
+                <a href="#" class="btn btn-primary btn-round" data-bs-toggle="modal" data-bs-target="#addShopModal">Neuen Kunden anlegen</a>
+            </div> *@
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Nutzer</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="basic-datatables" class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Vornaame</th>
+                                        <th>Nachname</th>
+                                        <th>Email</th>
+                                        <th>Letzte Aktivität</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tiger Nixon</td>
+                                        <td>System Architect</td>
+                                        <td>Edinburgh</td>
+                                        <td>2011/04/25</td>
+                                        <td>$320,800</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal für Neues Geschäft -->
+<div class="modal fade" id="addShopModal" tabindex="-1" role="dialog" aria-labelledby="addShopModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addShopModalLabel">Neues Geschäft hinzufügen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addShopForm">
+                    <div class="mb-3">
+                        <label for="shopName" class="form-label">Name vom Geschäft <a style="color: red;">*</a></label>
+                        <input type="text" class="form-control" id="shopName" placeholder="Name vom Geschäft" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shopAddress" class="form-label">Adresse <a style="color: red;">*</a></label>
+                        <input type="text" class="form-control" id="shopAddress" placeholder="Adresse" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shopPlz" class="form-label">PLZ <a style="color: red;">*</a></label>
+                        <input type="text" class="form-control" id="shopPlz" placeholder="PLZ" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shopCity" class="form-label">Stadt <a style="color: red;">*</a></label>
+                        <input type="text" class="form-control" id="shopCity" placeholder="Stadt" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="shopContact" class="form-label">Ansprechperson</label>
+                        <input type="text" class="form-control" id="shopContact" placeholder="Ansprechperson" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                <button type="button" class="btn btn-primary" id="saveShopButton">Speichern</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- DataTables Initialisierung -->
+<script>
+    document.getElementById('saveShopButton').addEventListener('click', function () {
+        var shopName = document.getElementById('shopName').value;
+        var shopAddress = document.getElementById('shopAddress').value;
+        var shopPlz = document.getElementById('shopPlz').value;
+        var shopCity = document.getElementById('shopCity').value;
+        var shopContact = document.getElementById('shopContact').value;
+
+        // AJAX-Request, um die Daten an den Controller zu senden
+        $.ajax({
+            url: '/Store/CreateStore',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                StoreName: shopName,
+                Address: shopAddress,
+                PLZ: shopPlz,
+                City: shopCity,
+                ContactPerson: shopContact
+            }),
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    location.reload(); // Aktualisiere die Seite nach erfolgreichem Speichern
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+
+        // Schließe das Modal nach dem Speichern
+        var myModalEl = document.getElementById('addShopModal');
+        var modal = bootstrap.Modal.getInstance(myModalEl);
+        modal.hide();
+    });
+</script>
+

@@ -1,3 +1,5 @@
+using MangoCard.Models; 
+
 public class WalletCard
 {
     public Guid WalletId { get; set; } // Primärschlüssel
@@ -9,7 +11,4 @@ public class WalletCard
     public int PointsToRedeemReward { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-
-    // Navigation properties
-    public ICollection<Customer> Customers { get; set; }
 }
