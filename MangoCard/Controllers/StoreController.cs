@@ -1,7 +1,6 @@
 using MangoCard.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using QRCoder;
 using System.Diagnostics;
 using System.Drawing;
 using System.Security.Claims;

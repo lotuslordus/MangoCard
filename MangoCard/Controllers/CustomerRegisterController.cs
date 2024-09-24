@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 
 public class CustomerRegisterController : Controller
 {
+    private readonly CardService _cardService;
     private readonly AppDbContext _context;
 
-    public CustomerRegisterController(AppDbContext context)
+    public CustomerRegisterController(AppDbContext context, CardService cardController)
     {
+        _cardService = cardController;
         _context = context;
     }
 
@@ -61,11 +63,15 @@ public class CustomerRegisterController : Controller
             LastName = model.LastName,
             Email = model.Email,
             StoreId = storeId,  // Weise den Kunden dem Store zu
-            CompanyId = store.Company.Id // Weise den Kunden der Company zu
+            CompanyId = store.Company.Id, // Weise den Kunden der Company zu
+            Points = 0
         };
 
         _context.Customers.Add(customer);
         await _context.SaveChangesAsync();
+
+        // Erstelle die Wallet-Karte für den Kunden
+        await _cardService.CreateWalletCard(customer.FirstName, customer.LastName, customer.Email, customer.CustomerId, customer.CompanyId);
 
         // Erfolgsseite anzeigen oder auf eine andere Seite umleiten
         return RedirectToAction("Success");
